@@ -283,11 +283,7 @@ namespace NATS.Client
             {
                 if (!disposedValue)
                 {
-#if NET46
-                    if (executorTask != null)
-                        executorTask.Dispose();
-#endif
-
+                    executorTask?.Dispose();
                     disposedValue = true;
                 }
             }
@@ -418,11 +414,7 @@ namespace NATS.Client
 
             internal static void close(TcpClient c)
             {
-#if NET46
-                    c?.Close();
-#else
-                    c?.Dispose();
-#endif
+                c?.Dispose();
                 c = null;
             }
 
@@ -583,6 +575,7 @@ namespace NATS.Client
             }
             #endregion
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Connection"/> class
         /// with the specified <see cref="Options"/>.
@@ -1366,17 +1359,12 @@ namespace NATS.Client
 
             if (pending.Length > 0)
             {
-#if NET46
-                bw.Write(pending.GetBuffer(), 0, (int)pending.Length);
-                bw.Flush();
-#else
                 ArraySegment<byte> buffer;
                 if (pending.TryGetBuffer(out buffer))
                 {
                     // TODO:  Buffer.length
                     bw.Write(buffer.Array, buffer.Offset, (int)buffer.Count);
                 }
-#endif
             }
 
             pending = null;

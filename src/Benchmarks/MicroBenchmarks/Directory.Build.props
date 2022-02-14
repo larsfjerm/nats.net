@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup>
     <!-- We need to override these, otherwise benchmarks won't work :/ -->
-    <TargetFrameworks></TargetFrameworks>
-    <TargetFramework></TargetFramework>
+    <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
 </Project>

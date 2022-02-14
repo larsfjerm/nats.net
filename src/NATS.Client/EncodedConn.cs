@@ -14,10 +14,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-#if NET46
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-#endif
 
 namespace NATS.Client
 {
@@ -110,59 +106,8 @@ namespace NATS.Client
             onDeserialize = defaultDeserializer;
         }
 
-#if NET46
-        private IFormatter f = new BinaryFormatter();
-
-        // Note, the connection locks around this, so while we are using a
-        // byte array in the connection, we are still thread safe.
-        internal byte[] defaultSerializer(Object obj)
-        {
-            byte[] rv = null;
-
-            if (obj == null)
-                return null;
-
-            lock (sStreamLock)
-            {
-                sStream.Position = 0;
-                f.Serialize(sStream, obj);
-
-                long len = sStream.Position;
-                rv = new byte[len];
-
-                // Could be more efficient, but w/o passing a length all the way
-                // through publish, we have to do this.   No such thing as slices
-                // in .NET
-                Array.Copy(sStream.GetBuffer(), rv, len);
-            }
-            return rv;
-        }
-
-
-        // This could be more efficient, but is straightforward and simple.
-        // it'd be nice to have a default serializer per subscription to avoid
-        // the lock here, but this  mirrors go.
-        //
-        // TODO:  Look at moving the default to the wrapper and keeping a deserialization
-        // stream there.
-        internal object defaultDeserializer(byte[] data)
-        {
-            if (data == null)
-                return null;
-
-            lock (dStreamLock)
-            {
-                dStream.Position = 0;
-                dStream.Write(data, 0, data.Length);
-                dStream.Position = 0;
-
-                return f.Deserialize(dStream);
-            }
-        }
-#else
         Serializer defaultSerializer = null;
         Deserializer defaultDeserializer = null;
-#endif
 
         private void publishObject(string subject, string reply, object o)
         {

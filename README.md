@@ -1,7 +1,7 @@
 
 # NATS - .NET C# Client
 
-A [C# .NET](https://msdn.microsoft.com/en-us/vstudio/aa496123.aspx) client for the [NATS messaging system](https://nats.io) multi targetting `.NET4.6+` and `.NETStandard1.6`.
+A [C# .NET](https://msdn.microsoft.com/en-us/vstudio/aa496123.aspx) client for the [NATS messaging system](https://nats.io) targetting `netstandard2.1`.
 
 This NATS Maintainer supported client parallels the [NATS GO Client](https://github.com/nats-io/nats).
 

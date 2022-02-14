@@ -12,7 +12,6 @@
 // limitations under the License.
 
 
-#if !NET46
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -444,4 +443,3 @@ namespace IntegrationTests
         }
     }
 }
-#endif

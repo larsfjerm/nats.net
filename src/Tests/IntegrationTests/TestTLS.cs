@@ -48,12 +48,7 @@ namespace IntegrationTests
             X509Certificate serverCert = new X509Certificate(
                     UnitTestUtilities.GetFullCertificatePath("server-cert.pem"));
 
-            // UNSAFE hack for testing purposes.
-#if NET46
-            var isOK = serverCert.GetRawCertDataString().Equals(certificate.GetRawCertDataString());
-#else
             var isOK = serverCert.Issuer.Equals(certificate.Issuer);
-#endif
             if (isOK)
                 return true;
 
@@ -291,58 +286,5 @@ namespace IntegrationTests
                 }
             }
         }
-
-#if NET46
-        [Fact]
-        public void TestTlsReconnectAuthTimeoutLateClose()
-        {
-            AutoResetEvent ev = new AutoResetEvent(false);
-
-            using (NATSServer s1 = NATSServer.CreateWithConfig(Context.Server1.Port, "auth_tls.conf"),
-                              s2 = NATSServer.CreateWithConfig(Context.Server2.Port, "auth_tls.conf"))
-            {
-
-                Options opts = Context.GetTestOptions();
-                opts.Secure = true;
-                opts.NoRandomize = true;
-                opts.TLSRemoteCertificationValidationCallback = verifyServerCert;
-
-                opts.Servers = new string[]{
-                    $"nats://username:password@localhost:{Context.Server1.Port}",
-                    $"nats://username:password@localhost:{Context.Server2.Port}" };
-
-                opts.ReconnectedEventHandler += (sender, args) =>
-                {
-                    ev.Set();
-                };
-
-                using (var c = Context.ConnectionFactory.CreateConnection(opts))
-                {
-                    // inject an authorization timeout, as if it were processed by an incoming server message.
-                    // this is done at the parser level so that parsing is also tested,
-                    // therefore it needs reflection since Parser is an internal type.
-                    Type parserType = typeof(Connection).Assembly.GetType("NATS.Client.Parser");
-                    Assert.NotNull(parserType);
-
-                    BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-                    object parser = Activator.CreateInstance(parserType, flags, null, new object[] {c}, null);
-                    Assert.NotNull(parser);
-
-                    MethodInfo parseMethod = parserType.GetMethod("parse", flags);
-                    Assert.NotNull(parseMethod);
-
-                    byte[] bytes = "-ERR 'Authorization Timeout'\r\n".ToCharArray().Select(ch => (byte) ch).ToArray();
-                    parseMethod.Invoke(parser, new object[] {bytes, bytes.Length});
-
-                    // sleep to allow the client to process the error, then shutdown the server.
-                    Thread.Sleep(250);
-                    s1.Shutdown();
-
-                    // Wait for a reconnect.
-                    Assert.True(ev.WaitOne(20000));
-                }
-            }
-        }
-#endif
     }
 }

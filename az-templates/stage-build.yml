@@ -26,14 +26,6 @@ stages:
         configuration: $(BuildConfiguration)
         testRunTitle: 'UnitTests .NetCoreApp3.1'
   
-    - task: VSTest@2
-      displayName: 'UnitTests .Net4.6'
-      inputs:
-        testSelector: 'testAssemblies'
-        testAssemblyVer2: 'src/Tests/UnitTests/bin/$(BuildConfiguration)/net46/UnitTests.dll'
-        configuration: $(BuildConfiguration)
-        testRunTitle: 'UnitTests .Net4.6'
-  
     - task: PowerShell@2
       displayName: 'Install Dependencies'
       inputs:
@@ -54,16 +46,6 @@ stages:
         rerunFailedTests: True
         rerunMaxAttempts: 2
         testRunTitle: 'IntegrationTests .NetCoreApp3.1'
-  
-    - task: VSTest@2
-      displayName: 'IntegrationTests .Net4.6'
-      inputs:
-        testSelector: 'testAssemblies'
-        testAssemblyVer2: 'src/Tests/IntegrationTests/bin/$(BuildConfiguration)/net46/IntegrationTests.dll'
-        configuration: $(BuildConfiguration)
-        rerunFailedTests: True
-        rerunMaxAttempts: 2
-        testRunTitle: 'IntegrationTests .Net4.6'
   
     - task: DotNetCoreCLI@2
       displayName: 'Pack Nupkg'

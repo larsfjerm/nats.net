@@ -23,8 +23,7 @@ namespace MicroBenchmarks
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
     [MemoryDiagnoser]
     [MarkdownExporterAttribute.GitHub]
-    [SimpleJob(RuntimeMoniker.Net462)]
-    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [SimpleJob(RuntimeMoniker.Net60)]
     public class NuidBenchmark
     {
 #pragma warning disable CS0618

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29230.47
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5352168F-9BC9-4F50-8D82-AEC0CB07FE5C}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,13 +30,55 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueGroup", "Samples\Queue
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RxSample", "Samples\RxSample\RxSample.csproj", "{C21CBF59-9884-436C-8A24-0248F8598979}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsSample", "Samples\WinFormsSample\WinFormsSample.csproj", "{10ED0146-1701-4BC9-9E26-824B22D18CB8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "Benchmarks\Benchmark\Benchmark.csproj", "{8BC71128-1FC5-4126-9582-41223E96C2CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroBenchmarks", "Benchmarks\MicroBenchmarks\MicroBenchmarks.csproj", "{8D181EED-3FF7-4CC0-9C85-331EF20B7688}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{A4CB6D96-6357-40DC-B198-50568A7E45C7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPublish", "Samples\JetStreamPublish\JetStreamPublish.csproj", "{16D5609D-3684-43F6-BDF4-777217EFAC58}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPushSubscribeBasicSync", "Samples\JetStreamPushSubscribeBasicSync\JetStreamPushSubscribeBasicSync.csproj", "{E36E289A-5EDB-4A7F-83A8-E67B7A5019F2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPublishAsync", "Samples\JetStreamPublishAsync\JetStreamPublishAsync.csproj", "{A888C56E-721D-496A-91FE-EFF983650D77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPublishVsCorePublish", "Samples\JetStreamPublishVsCorePublish\JetStreamPublishVsCorePublish.csproj", "{257E7720-0AE3-49E3-AB13-EB84FF4D06FA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPublishWithOptionsUseCases", "Samples\JetStreamPublishWithOptionsUseCases\JetStreamPublishWithOptionsUseCases.csproj", "{A935E4D3-142C-4BBB-BD85-C8A475E7D747}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamManageConsumers", "Samples\JetStreamManageConsumers\JetStreamManageConsumers.csproj", "{1CB31B41-198B-497F-987F-5D4B480E6484}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamExampleUtils", "Samples\JetStreamExampleUtils\JetStreamExampleUtils.csproj", "{8192478D-1A69-4368-B428-723E136424CA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamManageStreams", "Samples\JetStreamManageStreams\JetStreamManageStreams.csproj", "{F4BC8AA0-C73E-41D6-AB6B-ED7E4B27B9CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPushSubscribeBasicAsync", "Samples\JetStreamPushSubscribeBasicAsync\JetStreamPushSubscribeBasicAsync.csproj", "{3A522370-0616-4D92-ADAD-B8229E94AA4D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPushSubscribeBindDurable", "Samples\JetStreamPushSubscribeBindDurable\JetStreamPushSubscribeBindDurable.csproj", "{76155EDB-0018-432A-A766-EF69348961A0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPushSubscribeQueueDurable", "Samples\JetStreamPushSubscribeQueueDurable\JetStreamPushSubscribeQueueDurable.csproj", "{85E2BB42-14BD-4D26-8CAB-22AB809088AA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPushSubscribeFilterSubject", "Samples\JetStreamPushSubscribeFilterSubject\JetStreamPushSubscribeFilterSubject.csproj", "{17AFCC2E-0978-4C3A-9BC5-9512C31F446F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPushSubscribeDeliverSubject", "Samples\JetStreamPushSubscribeDeliverSubject\JetStreamPushSubscribeDeliverSubject.csproj", "{2A3062DC-ADC7-4A2B-A90E-B66CE2696296}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubBatchSize", "Samples\JetStreamPullSubBatchSize\JetStreamPullSubBatchSize.csproj", "{A0B08DCD-098B-41C0-92C8-3F5FF2617CFE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubBatchSizeUseCases", "Samples\JetStreamPullSubBatchSizeUseCases\JetStreamPullSubBatchSizeUseCases.csproj", "{8E724984-797A-4A8B-B84A-73C81A51C580}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubExpiresIn", "Samples\JetStreamPullSubExpiresIn\JetStreamPullSubExpiresIn.csproj", "{1FD01D9F-A29A-4072-989B-41689DFC0214}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubExpiresInUseCases", "Samples\JetStreamPullSubExpiresInUseCases\JetStreamPullSubExpiresInUseCases.csproj", "{7F2E6172-FB5A-4C92-96FA-8D5C5BC9B70E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubFetch", "Samples\JetStreamPullSubFetch\JetStreamPullSubFetch.csproj", "{4B9FE3F8-A8ED-471B-93E9-7DD1AA2B6C0E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubFetchUseCases", "Samples\JetStreamPullSubFetchUseCases\JetStreamPullSubFetchUseCases.csproj", "{C9C5251D-00E7-4F78-B9A4-A8F87864B28C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamPullSubNoWaitUseCases", "Samples\JetStreamPullSubNoWaitUseCases\JetStreamPullSubNoWaitUseCases.csproj", "{FEF800F2-A84C-4822-97C2-91127D40B194}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetStreamStarter", "Samples\JetStreamStarter\JetStreamStarter.csproj", "{7D8F1465-FE87-4725-9A2C-AEDA79C8E843}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeyValueFull", "Samples\KeyValueFull\KeyValueFull.csproj", "{D9D9D9D7-F73D-459A-9067-909E07BA43EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,18 +118,14 @@ Global
 		{2F052465-A58D-4670-8600-24CCB2F220A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F052465-A58D-4670-8600-24CCB2F220A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F052465-A58D-4670-8600-24CCB2F220A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C21CBF59-9884-436C-8A24-0248F8598979}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C21CBF59-9884-436C-8A24-0248F8598979}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C21CBF59-9884-436C-8A24-0248F8598979}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C21CBF59-9884-436C-8A24-0248F8598979}.Release|Any CPU.Build.0 = Release|Any CPU
-		{10ED0146-1701-4BC9-9E26-824B22D18CB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10ED0146-1701-4BC9-9E26-824B22D18CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10ED0146-1701-4BC9-9E26-824B22D18CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{10ED0146-1701-4BC9-9E26-824B22D18CB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC71128-1FC5-4126-9582-41223E96C2CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8D181EED-3FF7-4CC0-9C85-331EF20B7688}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8D181EED-3FF7-4CC0-9C85-331EF20B7688}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D181EED-3FF7-4CC0-9C85-331EF20B7688}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -104,9 +142,8 @@ Global
 		{725F4B11-9275-4966-AD46-383021EEC152} = {776C2E80-958B-4C0D-BCC4-67D39DB4570B}
 		{B5C69B45-658C-431D-9D0D-C9D2D098248A} = {776C2E80-958B-4C0D-BCC4-67D39DB4570B}
 		{2F052465-A58D-4670-8600-24CCB2F220A5} = {776C2E80-958B-4C0D-BCC4-67D39DB4570B}
-		{8BC71128-1FC5-4126-9582-41223E96C2CA} = {A4CB6D96-6357-40DC-B198-50568A7E45C7}
 		{C21CBF59-9884-436C-8A24-0248F8598979} = {776C2E80-958B-4C0D-BCC4-67D39DB4570B}
-		{10ED0146-1701-4BC9-9E26-824B22D18CB8} = {776C2E80-958B-4C0D-BCC4-67D39DB4570B}
+		{8BC71128-1FC5-4126-9582-41223E96C2CA} = {A4CB6D96-6357-40DC-B198-50568A7E45C7}
 		{8D181EED-3FF7-4CC0-9C85-331EF20B7688} = {A4CB6D96-6357-40DC-B198-50568A7E45C7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

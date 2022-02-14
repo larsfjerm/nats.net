@@ -33,156 +33,6 @@ namespace IntegrationTests
 
         public IEncodedConnection DefaultEncodedConnection => Context.OpenEncodedConnectionWithDefaultTimeout(Context.Server1.Port);
 
-#if NET46
-        [Serializable]
-        public class SerializationTestObj
-        {
-            public int a = 10;
-            public int b = 20;
-            public string c = "c";
-
-            public override bool Equals(Object o)
-            {
-                if (o.GetType() != this.GetType())
-                    return false;
-
-                SerializationTestObj to = (SerializationTestObj) o;
-
-                return (a == to.a && b == to.b && c.Equals(to.c));
-            }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-
-            public override string ToString()
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendFormat("a={0};b={1};c={2}", a, b, c);
-                return sb.ToString();
-            }
-        }
-
-        [Fact]
-        public void TestDefaultObjectSerialization()
-        {
-            using (NATSServer.CreateFastAndVerify(Context.Server1.Port))
-            {
-                using (IEncodedConnection c = DefaultEncodedConnection)
-                {
-                    Object mu = new Object();
-                    SerializationTestObj origObj = new SerializationTestObj();
-
-                    EventHandler<EncodedMessageEventArgs> eh = (sender, args) =>
-                    {
-                        // Ensure we blow up in the cast
-                        SerializationTestObj so = (SerializationTestObj) args.ReceivedObject;
-                        Assert.True(so.Equals(origObj));
-
-                        lock (mu)
-                        {
-                            Monitor.Pulse(mu);
-                        }
-                    };
-
-                    using (IAsyncSubscription s = c.SubscribeAsync("foo", eh))
-                    {
-                        lock (mu)
-                        {
-                            c.Publish("foo", new SerializationTestObj());
-                            c.Flush();
-
-                            Monitor.Wait(mu, 1000);
-                        }
-                    }
-                }
-            }
-        }
-
-        [Serializable]
-        public class BasicObj
-        {
-            public BasicObj(int value)
-            {
-                A = value;
-            }
-
-            public int A { get; set; }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-
-            public override bool Equals(Object o)
-            {
-                if (o.GetType() != GetType())
-                    return false;
-
-                BasicObj to = (BasicObj) o;
-
-                return (A == ((BasicObj) to).A);
-            }
-        }
-
-        [Fact]
-        public void TestEncodedDefaultRequestReplyThreadSafety()
-        {
-            using (NATSServer.CreateFastAndVerify(Context.Server1.Port))
-            {
-                using (IEncodedConnection c = DefaultEncodedConnection)
-                {
-                    using (c.SubscribeAsync("replier", (obj, args) =>
-                    {
-                        try
-                        {
-                            c.Publish(args.Reply, new BasicObj(((BasicObj) args.ReceivedObject).A));
-                        }
-                        catch (Exception ex)
-                        {
-                            Assert.True(false, "Replier Exception: " + ex.Message);
-                        }
-
-                        c.Flush();
-                    }))
-                    {
-                        c.Flush();
-
-                        using (IEncodedConnection c2 = DefaultEncodedConnection)
-                        {
-                            System.Threading.Tasks.Parallel.For(0, 20, i =>
-                            {
-                                try
-                                {
-                                    var bo = new BasicObj(i);
-                                    Assert.True(bo.Equals(c2.Request("replier", bo, 30000)), "Objects did not equal");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Assert.True(false, "Exception: " + ex.Message);
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        }
-#else
-        [Fact]
-        public void TestDefaultObjectSerialization()
-        {
-            using (NATSServer.CreateFastAndVerify(Context.Server1.Port))
-            {
-                using (IEncodedConnection c = DefaultEncodedConnection)
-                {
-                    Assert.Throws<NATSException>(() => { c.Publish("foo", new Object()); });
-                    Assert.Throws<NATSException>(() => { c.SubscribeAsync("foo", (obj, args)=>{}); });
-                }
-            }
-        }
-#endif
-
         [DataContract]
         public class JsonObject
         {
@@ -312,13 +162,7 @@ namespace IntegrationTests
             using (MemoryStream stream = new MemoryStream())
             {
                 serializer.WriteObject(stream, obj);
-#if NET46
-                byte[] buffer = stream.GetBuffer();
-                long len = stream.Position;
-                var rv = new byte[len];
-                Array.Copy(buffer, rv, (int) len);
-                return rv;
-#else
+
                 ArraySegment<byte> buffer;
                 if (stream.TryGetBuffer(out buffer))
                 {
@@ -331,7 +175,6 @@ namespace IntegrationTests
                 {
                     throw new Exception("Unable to serialize - buffer error");
                 }
-#endif
             }
         }
 
