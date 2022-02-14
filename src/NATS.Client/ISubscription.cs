@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 
 namespace NATS.Client
@@ -26,8 +27,13 @@ namespace NATS.Client
     /// </remarks>
     /// <seealso cref="ISyncSubscription"/>
     /// <seealso cref="IAsyncSubscription"/>
-    public interface ISubscription
+    public interface ISubscription : IDisposable
     {
+        /// <summary>
+        /// the id associated with the subscription, used by the connection when processing an incoming
+        /// </summary>
+        long Sid { get; }
+        
         /// <summary>
         /// Gets the subject for this subscription.
         /// </summary>

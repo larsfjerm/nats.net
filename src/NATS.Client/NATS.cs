@@ -12,6 +12,8 @@
 // limitations under the License.
 
 using System;
+using System.Reflection;
+using System.Text;
 
 /*! \mainpage %NATS .NET client.
  *
@@ -40,7 +42,7 @@ using System;
 // Notes on the NATS .NET client.
 // 
 // While public and protected methods 
-// and properties adhere to the .NET coding guidlines, 
+// and properties adhere to the .NET coding guidelines, 
 // internal/private members and methods mirror the go client for
 // maintenance purposes.  Public method and properties are
 // documented with standard .NET doc.
@@ -57,7 +59,7 @@ using System;
 //
 //     Coding guidelines are based on:
 //     http://blogs.msdn.com/b/brada/archive/2005/01/26/361363.aspx
-//     although method location mirrors the go client to faciliate
+//     although method location mirrors the go client to facilitate
 //     maintenance.
 //     
 namespace NATS.Client
@@ -70,7 +72,7 @@ namespace NATS.Client
         /// <summary>
         /// Client version
         /// </summary>
-        public const string Version = "0.0.1";
+        public static readonly string Version = typeof(Defaults).GetTypeInfo().Assembly.GetName().Version.ToString();
 
         /// <summary>
         /// The default NATS connect url ("nats://localhost:4222")
@@ -170,7 +172,75 @@ namespace NATS.Client
 
         // Default server pool size
         internal const int srvPoolSize = 4;
+        
+        public static EventHandler<ConnEventArgs> DefaultClosedEventHandler() => 
+            (sender, e) => WriteEvent("ClosedEvent", e);
+        
+        public static EventHandler<ConnEventArgs> DefaultServerDiscoveredEventHandler() => 
+            (sender, e) => WriteEvent("ServerDiscoveredEvent", e);
+        
+        public static EventHandler<ConnEventArgs> DefaultDisconnectedEventHandler() => 
+            (sender, e) => WriteEvent("DisconnectedEvent", e);
+
+        public static EventHandler<ConnEventArgs> DefaultReconnectedEventHandler() => 
+            (sender, e) => WriteEvent("ReconnectedEvent", e);
+
+        public static EventHandler<ConnEventArgs> DefaultLameDuckModeEventHandler() => 
+            (sender, e) => WriteEvent("LameDuckModeEvent", e);
+
+        public static EventHandler<ErrEventArgs> DefaultAsyncErrorEventHandler() => 
+            (sender, e) => WriteError("AsyncErrorEvent", e);
+
+        public static EventHandler<HeartbeatAlarmEventArgs> DefaultHeartbeatAlarmEventHandler() =>
+            (sender, e) =>
+                WriteEvent("HeartbeatAlarm", e,
+                    "lastStreamSequence: ", e?.LastStreamSequence ?? 0U,
+                    "lastConsumerSequence: ", e?.LastConsumerSequence ?? 0U);
+
+        public static EventHandler<UnhandledStatusEventArgs> DefaultUnhandledStatusEventHandler() => 
+            (sender, e) => WriteEvent("UnhandledStatus", e, "Status: ", e?.Status);
+
+        public static EventHandler<FlowControlProcessedEventArgs> DefaultFlowControlProcessedEventHandler() =>
+            (sender, e) => WriteEvent("FlowControlProcessed", e, "FcSubject: ", e?.FcSubject, "Source: ", e?.Source);
+
+        private static void WriteEvent(String label, ConnJsSubEventArgs e, params object[] pairs) {
+            var sb = BeginFormatMessage(label, e?.Conn, e?.Sub, null);
+            for (int x = 0; x < pairs.Length; x++) {
+                sb.Append(", ").Append(pairs[x]).Append(pairs[++x]);
+            }
+            Console.Error.WriteLine(sb.ToString());
+        }
+
+        private static void WriteEvent(String label, ConnEventArgs e)
+        {
+            Console.Error.WriteLine(e == null ? label
+                : BeginFormatMessage(label, e.Conn, null, e.Error?.Message).ToString());
+        }
+
+        private static void WriteError(String label, ErrEventArgs e) {
+            Console.Error.WriteLine(e == null ? label
+                : BeginFormatMessage(label, e.Conn, e.Subscription, e.Error).ToString());
+        }
+
+        private static StringBuilder BeginFormatMessage(string label, Connection conn, Subscription sub, string error)
+        {
+            StringBuilder sb = new StringBuilder(label);
+            if (conn != null)
+            {
+                sb.Append(", Connection: ").Append(conn.ClientID);
+            }
+            if (sub != null) {
+                sb.Append(", Subscription: ").Append(sub.Sid);
+            }
+            if (error != null)
+            {
+                sb.Append(", Error: ").Append(error);
+            }
+            return sb;
+        }
     }
+
+    public enum FlowControlSource { FlowControl, Heartbeat }
 
     /// <summary>
     /// Provides the details when the state of a <see cref="Connection"/>
@@ -219,6 +289,101 @@ namespace NATS.Client
         public int Attempts { get; }
     }
 
+    /// <summary>
+    /// Provides details for an error encountered asynchronously
+    /// by an <see cref="IConnection"/>.
+    /// </summary>
+    public class ErrEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the <see cref="Connection"/> associated with the event.
+        /// </summary>
+        public Connection Conn { get; }
+
+        /// <summary>
+        /// Gets the <see cref="NATS.Client.Subscription"/> associated with the event.
+        /// </summary>
+        public Subscription Subscription  { get; }
+        
+        /// <summary>
+        /// Gets the error message associated with the event.
+        /// </summary>
+        public String Error { get; }
+
+        public ErrEventArgs(Connection conn, Subscription subscription, string error)
+        {
+            Conn = conn;
+            Subscription = subscription;
+            Error = error;
+        }
+    }
+
+    /// <summary>
+    /// Base class for Event Args that have a connection and a subscription
+    /// by an <see cref="IConnection"/>.
+    /// </summary>
+    public class ConnJsSubEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the <see cref="Connection"/> associated with the event.
+        /// </summary>
+        public Connection Conn { get; }
+        
+        /// <summary>
+        /// Gets the <see cref="NATS.Client.Subscription"/> associated with the event.
+        /// </summary>
+        public Subscription Sub { get; }
+
+        protected ConnJsSubEventArgs(Connection conn, Subscription sub)
+        {
+            Conn =  conn;
+            Sub = sub;
+        }
+    }
+    
+    /// <summary>
+    /// Provides details for an heartbeat alarm encountered
+    /// </summary>
+    public class HeartbeatAlarmEventArgs : ConnJsSubEventArgs
+    {
+        public ulong LastStreamSequence { get; }
+        public ulong LastConsumerSequence { get; }
+
+        public HeartbeatAlarmEventArgs(Connection c, Subscription s, 
+            ulong lastStreamSequence, ulong lastConsumerSequence) : base(c, s)
+        {
+            LastStreamSequence = lastStreamSequence;
+            LastConsumerSequence = lastConsumerSequence;
+        }
+    }
+
+    /// <summary>
+    /// Provides details for an status message when it is unknown or unhandled
+    /// </summary>
+    public class UnhandledStatusEventArgs : ConnJsSubEventArgs
+    {
+        public MsgStatus Status { get; }
+
+        public UnhandledStatusEventArgs(Connection c, Subscription s, MsgStatus status) : base(c, s)
+        {
+            Status = status;
+        }
+    }
+    
+    /// <summary>
+    /// Provides details for an status message when when a flow control is processed.
+    /// </summary>
+    public class FlowControlProcessedEventArgs : ConnJsSubEventArgs
+    {
+        public string FcSubject { get; }
+        public FlowControlSource Source { get; }
+
+        public FlowControlProcessedEventArgs(Connection c, Subscription s, string fcSubject, FlowControlSource source) : base(c, s)
+        {
+            FcSubject = fcSubject;
+            Source = source;
+        }
+    }
 
     /// <summary>
     /// Provides details when a user JWT is read during a connection.  The
@@ -444,14 +609,14 @@ namespace NATS.Client
                 nextChar = (byte)((b << bitsRemaining) & 31);
             }
 
-            //if we didn't end with a full char
-            if (arrayIndex != charCount)
+            // if we didn't end with a full char
+            if (arrayIndex < charCount)
             {
                 returnArray[arrayIndex++] = ValueToChar(nextChar);
-                while (arrayIndex != charCount) returnArray[arrayIndex++] = '='; //padding
+                // NOTE: Base32 padding omitted
             }
 
-            return new string(returnArray);
+            return new string(returnArray, 0, arrayIndex);
         }
 
         private static int CharToValue(char c)

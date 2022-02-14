@@ -78,6 +78,11 @@ namespace NATS.Client
         public virtual void Close() => closed = true;
 
         /// <summary>
+        /// the id associated with the subscription, used by the connection when processing an incoming
+        /// </summary>
+        public long Sid => sid; 
+
+        /// <summary>
         /// Gets the subject for this subscription.
         /// Subject that represents this subscription. This can be different
         /// than the received subject inside a Msg if this is a wildcard.
@@ -173,10 +178,12 @@ namespace NATS.Client
             {
                 if (Count >= maxCount)
                 {
+                    // slow consumer
                     handleSlowConsumer(msg);
                     return false;
                 }
-                else
+
+                if (mch != null)
                 {
                     IsSlow = false;
                     // on an unbounded Channel this will always succeed
@@ -184,6 +191,7 @@ namespace NATS.Client
                     Interlocked.Increment(ref count);
                 }
             }
+
             return true;
         }
 

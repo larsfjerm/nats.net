@@ -15,6 +15,8 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using NATS.Client.JetStream;
+using NATS.Client.KeyValue;
 
 namespace NATS.Client
 {
@@ -36,6 +38,15 @@ namespace NATS.Client
         /// an older server or is in the process of connecting, null will be returned.
         /// </remarks>
         IPAddress ClientIP { get; }
+
+        /// <summary>
+        /// Gets the ID of client as known by the NATS server, otherwise <c>null</c>.
+        /// </summary>
+        /// <remarks>
+        /// May not be supported in all versions of the server. If the client is connected to
+        /// an older server or is in the process of connecting, 0 will be returned.
+        /// </remarks>
+        int ClientID { get; }
 
         /// <summary>
         /// Gets the URL of the NATS server to which this instance
@@ -752,5 +763,34 @@ namespace NATS.Client
         /// </summary>
         int SubscriptionCount { get; }
 
+        /// <summary>
+        /// Gets a context for publishing and subscribing to subjects
+        /// backed by Jetstream streams and consumers.
+        /// </summary>
+        /// <param name="options">Optional JetStream options.</param>
+        /// <returns></returns>
+        IJetStream CreateJetStreamContext(JetStreamOptions options = null);
+
+        /// <summary>
+        /// Gets a context for administrating JetStream.
+        /// </summary>
+        /// <param name="options">Optional JetStream options.</param>
+        /// <returns></returns>
+        IJetStreamManagement CreateJetStreamManagementContext(JetStreamOptions options = null);
+
+        /// <summary>
+        /// Gets a context for a Key Value bucket 
+        /// </summary>
+        /// <param name="bucketName">The name of the bucket</param>
+        /// <param name="options">Optional JetStream options.</param>
+        /// <returns></returns>
+        IKeyValue CreateKeyValueContext(string bucketName, KeyValueOptions options = null);
+
+        /// <summary>
+        /// Gets a context for administrating Key Value buckets
+        /// </summary>
+        /// <param name="options">Optional JetStream options.</param>
+        /// <returns></returns>
+        IKeyValueManagement CreateKeyValueManagementContext(KeyValueOptions options = null);
     }
 }

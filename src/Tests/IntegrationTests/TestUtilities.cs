@@ -12,11 +12,11 @@
 // limitations under the License.
 
 using System;
-using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using NATS.Client;
 
 namespace IntegrationTests
@@ -65,16 +65,41 @@ namespace IntegrationTests
         public static NATSServer CreateFast(int port, string args = null)
             => new NATSServer(TimeSpan.Zero, port, args);
 
+        public static NATSServer CreateJetStreamFast(string args = null)
+            => CreateJetStreamFast(Defaults.Port, args);
+
+        public static NATSServer CreateJetStreamFast(int port, string args = null)
+        {
+            args = args == null
+                ? $"-js"
+                : $"{args} -js";
+
+            return new NATSServer(TimeSpan.Zero, port, args); 
+        }
+        
+        public static NATSServer CreateJetStreamFastAndVerify(int port, Action<Options> optionsModifier)
+        {
+            return CreateJetStreamFastAndVerify(port, null, optionsModifier);
+        }
+        
+        public static NATSServer CreateJetStreamFastAndVerify(int port, string args = null, Action<Options> optionsModifier = null)
+        {
+            args = args == null ? $"-js" : $"{args} -js";
+
+            return CreateFastAndVerify(port, args, optionsModifier);
+        }
+
         public static NATSServer CreateFastAndVerify(string args = null)
             => CreateFastAndVerify(Defaults.Port, args);
 
-        public static NATSServer CreateFastAndVerify(int port, string args = null)
+        public static NATSServer CreateFastAndVerify(int port, string args = null, Action<Options> optionsModifier = null)
         {
             var server = new NATSServer(TimeSpan.Zero, port, args);
             var cf = new ConnectionFactory();
 
             var opts = ConnectionFactory.GetDefaultOptions();
             opts.Url = $"nats://localhost:{port}";
+            optionsModifier?.Invoke(opts);
 
             var isVerifiedOk = false;
 
