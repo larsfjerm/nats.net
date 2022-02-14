@@ -22,7 +22,7 @@ namespace NATS.Client
     /// to <see cref="NextMessage()"/> and <see cref="NextMessage(int)"/>. This class should
     /// not be used directly.
     /// </summary>
-    public sealed class SyncSubscription : Subscription, ISyncSubscription, ISubscription
+    public class SyncSubscription : Subscription, ISyncSubscription, ISubscription
     {
         internal SyncSubscription(Connection conn, long subscriptionId, string subject, string queue)
             : base(conn, subscriptionId, subject, queue)
@@ -42,7 +42,7 @@ namespace NATS.Client
         /// <exception cref="NATSSlowConsumerException">The subscription has been marked as a slow consumer.</exception>
         public virtual Msg NextMessage()
         {
-            return NextMessageImpl(-1);
+            return NextMessage(-1);
         }
 
         /// <summary>

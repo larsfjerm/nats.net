@@ -15,7 +15,7 @@ using System.Diagnostics;
 
 namespace NATS.Client.JetStream
 {
-    public class JetStreamAbstractSyncSubscription : SyncSubscription
+    public abstract class JetStreamAbstractSyncSubscription : SyncSubscription
     {
         internal IAutoStatusManager _asm;
         public JetStream Context { get; }
@@ -23,9 +23,9 @@ namespace NATS.Client.JetStream
         public string Consumer { get; }
         public string DeliverSubject { get; }
 
-        internal JetStreamAbstractSyncSubscription(Connection conn, string subject, string queue,
+        internal JetStreamAbstractSyncSubscription(ISubscription sub,
             IAutoStatusManager asm, JetStream js, string stream, string consumer, string deliver)
-            : base(conn, subject, queue)
+            : base(sub.Connection, sub.Sid, sub.Subject, sub.Queue)
         {
             _asm = asm;
             Context = js;
@@ -42,18 +42,18 @@ namespace NATS.Client.JetStream
             base.Unsubscribe();
         }
 
-        internal override void close()
+        public override void Close()
         {
             _asm.Shutdown();
-            base.close();
+            base.Close();
         }
 
         public new Msg NextMessage()
         {
             // this calls is intended to block indefinitely 
-            Msg msg = NextMessageImpl(-1);
+            Msg msg = base.NextMessage(-1);
             while (msg != null && _asm.Manage(msg)) {
-                msg = NextMessageImpl(-1);
+                msg = base.NextMessage(-1);
             }
             return msg;
         }
@@ -68,7 +68,7 @@ namespace NATS.Client.JetStream
             Stopwatch sw = Stopwatch.StartNew();
             long leftover = timeout;
             while (leftover > 0) {
-                Msg msg = NextMessageImpl(timeout);
+                Msg msg = base.NextMessage(timeout);
                 if (!_asm.Manage(msg)) { // not managed means JS Message
                     return msg;
                 }

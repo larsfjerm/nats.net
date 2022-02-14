@@ -57,12 +57,16 @@ namespace NATS.Client
         private readonly ChannelWriter<Msg> writer;
         private readonly ChannelReader<Msg> reader;
 
+        internal Func<Msg, Msg> BeforeChannelAddCheck;
+
         internal Subscription(Connection conn, long subscriptionId, string subject, string queue)
         {
             this.conn = conn;
             sid = subscriptionId;
             Subject = subject;
             Queue = queue;
+
+            BeforeChannelAddCheck = msg => msg;
 
             //Name = "Unnamed channel " + this.GetHashCode();
             var channel = Channel.CreateUnbounded<Msg>(new UnboundedChannelOptions
@@ -72,7 +76,9 @@ namespace NATS.Client
             });
             writer = channel.Writer;
             reader = channel.Reader;
+
         }
+
         public long sid { get; }
 
         public virtual void Close() => closed = true;
@@ -163,6 +169,16 @@ namespace NATS.Client
                 pBytesMax = pBytes;
             }
 
+            // BeforeChannelAddCheck returns null if the message
+            // does not need to be queued, for instance heartbeats
+            // that are not flow control and are already seen by the
+            // auto status manager
+            msg = BeforeChannelAddCheck.Invoke(msg);
+            if (msg is null)
+            {
+                return true;
+            }
+
             // Check for a Slow Consumer
             if (
                 (pMsgsLimit > 0 && pMsgs > pMsgsLimit) ||
@@ -182,8 +198,7 @@ namespace NATS.Client
                     handleSlowConsumer(msg);
                     return false;
                 }
-
-                if (mch != null)
+                else
                 {
                     IsSlow = false;
                     // on an unbounded Channel this will always succeed

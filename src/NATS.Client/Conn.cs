@@ -31,6 +31,7 @@ using NATS.Client.JetStream;
 using NATS.Client.KeyValue;
 using static NATS.Client.Defaults;
 using Timeout = System.Threading.Timeout;
+using static NATS.Client.Connection;
 
 namespace NATS.Client
 {
@@ -3440,8 +3441,11 @@ namespace NATS.Client
 
         private long GetNextSubscriptionId() => Interlocked.Increment(ref ssid);
 
-        protected AsyncSubscription subscribeAsync(string subject, string queue,
-            EventHandler<MsgHandlerEventArgs> handler)
+        internal delegate SyncSubscription CreateSyncSubscriptionDelegate(Connection conn, string subject, string queue);
+        internal delegate AsyncSubscription CreateAsyncSubscriptionDelegate(Connection conn, string subject, string queue);
+
+        internal AsyncSubscription subscribeAsync(string subject, string queue,
+            EventHandler<MsgHandlerEventArgs> handler, CreateAsyncSubscriptionDelegate createAsyncSubscriptionDelegate = null)
         {
             if (!Subscription.IsValidSubject(subject))
             {
@@ -3461,7 +3465,10 @@ namespace NATS.Client
                 if (IsDraining())
                     throw new NATSConnectionDrainingException();
 
-                s = new AsyncSubscription(this, GetNextSubscriptionId(), subject, queue);
+                s = createAsyncSubscriptionDelegate == null
+                    ? new AsyncSubscription(this, GetNextSubscriptionId(), subject, queue)
+                    : createAsyncSubscriptionDelegate(this, subject, queue);
+
                 subs[s.sid] = s;
 
                 if (handler != null)
@@ -3476,8 +3483,8 @@ namespace NATS.Client
         
         // subscribe is the internal subscribe 
         // function that indicates interest in a subject.
-        internal SyncSubscription subscribeSync(string subject, string queue, 
-            EventHandler<MsgHandlerEventArgs> handler)
+        internal SyncSubscription subscribeSync(string subject, string queue,
+            CreateSyncSubscriptionDelegate createSyncSubscriptionDelegate = null)
         {
             if (!Subscription.IsValidSubject(subject))
             {
@@ -3497,7 +3504,10 @@ namespace NATS.Client
                 if (IsDraining())
                     throw new NATSConnectionDrainingException();
 
-                s = new SyncSubscription(this, GetNextSubscriptionId(), subject, queue);
+                s = createSyncSubscriptionDelegate == null
+                    ? new SyncSubscription(this, GetNextSubscriptionId(), subject, queue)
+                    : createSyncSubscriptionDelegate(this, subject, queue);
+
                 subs[s.sid] = s;
 
                 // We will send these for all subs when we reconnect

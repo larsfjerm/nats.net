@@ -188,7 +188,7 @@ namespace NATS.Client
         public static EventHandler<ConnEventArgs> DefaultLameDuckModeEventHandler() => 
             (sender, e) => WriteEvent("LameDuckModeEvent", e);
 
-        public static EventHandler<ErrEventArgs> DefaultAsyncErrorEventHandler() => 
+        public static EventHandler<ErrEventArgs> DefaultAsyncErrorEventHandler() =>
             (sender, e) => WriteError("AsyncErrorEvent", e);
 
         public static EventHandler<HeartbeatAlarmEventArgs> DefaultHeartbeatAlarmEventHandler() =>
@@ -203,7 +203,7 @@ namespace NATS.Client
         public static EventHandler<FlowControlProcessedEventArgs> DefaultFlowControlProcessedEventHandler() =>
             (sender, e) => WriteEvent("FlowControlProcessed", e, "FcSubject: ", e?.FcSubject, "Source: ", e?.Source);
 
-        private static void WriteEvent(String label, ConnJsSubEventArgs e, params object[] pairs) {
+        private static void WriteEvent(string label, ConnJsSubEventArgs e, params object[] pairs) {
             var sb = BeginFormatMessage(label, e?.Conn, e?.Sub, null);
             for (int x = 0; x < pairs.Length; x++) {
                 sb.Append(", ").Append(pairs[x]).Append(pairs[++x]);
@@ -211,18 +211,19 @@ namespace NATS.Client
             Console.Error.WriteLine(sb.ToString());
         }
 
-        private static void WriteEvent(String label, ConnEventArgs e)
+        private static void WriteEvent(string label, ConnEventArgs e)
         {
             Console.Error.WriteLine(e == null ? label
                 : BeginFormatMessage(label, e.Conn, null, e.Error?.Message).ToString());
         }
 
-        private static void WriteError(String label, ErrEventArgs e) {
+        private static void WriteError(string label, ErrEventArgs e)
+        {
             Console.Error.WriteLine(e == null ? label
                 : BeginFormatMessage(label, e.Conn, e.Subscription, e.Error).ToString());
         }
 
-        private static StringBuilder BeginFormatMessage(string label, Connection conn, Subscription sub, string error)
+        private static StringBuilder BeginFormatMessage(string label, Connection conn, ISubscription sub, string error)
         {
             StringBuilder sb = new StringBuilder(label);
             if (conn != null)
@@ -295,6 +296,13 @@ namespace NATS.Client
     /// </summary>
     public class ErrEventArgs : EventArgs
     {
+        internal ErrEventArgs(Connection c, ISubscription s, String err)
+        {
+            Conn = c;
+            Subscription = s;
+            Error = err;
+        }
+
         /// <summary>
         /// Gets the <see cref="Connection"/> associated with the event.
         /// </summary>
@@ -303,19 +311,12 @@ namespace NATS.Client
         /// <summary>
         /// Gets the <see cref="NATS.Client.Subscription"/> associated with the event.
         /// </summary>
-        public Subscription Subscription  { get; }
-        
+        public ISubscription Subscription { get; }
+
         /// <summary>
         /// Gets the error message associated with the event.
         /// </summary>
-        public String Error { get; }
-
-        public ErrEventArgs(Connection conn, Subscription subscription, string error)
-        {
-            Conn = conn;
-            Subscription = subscription;
-            Error = error;
-        }
+        public string Error { get; }
     }
 
     /// <summary>
@@ -451,35 +452,6 @@ namespace NATS.Client
                 return signedNonce;
             }
         }
-    }
-
-    /// <summary>
-    /// Provides details for an error encountered asynchronously
-    /// by an <see cref="IConnection"/>.
-    /// </summary>
-    public class ErrEventArgs : EventArgs
-    {
-        internal ErrEventArgs(Connection c, ISubscription s, String err)
-        {
-            Conn = c;
-            Subscription = s;
-            Error = err;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Connection"/> associated with the event.
-        /// </summary>
-        public Connection Conn { get; }
-
-        /// <summary>
-        /// Gets the <see cref="NATS.Client.Subscription"/> associated with the event.
-        /// </summary>
-        public ISubscription Subscription { get; }
-
-        /// <summary>
-        /// Gets the error message associated with the event.
-        /// </summary>
-        public string Error { get; }
     }
 
     /**
